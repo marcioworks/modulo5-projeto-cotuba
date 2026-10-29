@@ -10,33 +10,28 @@ import com.itextpdf.layout.element.AreaBreak;
 import com.itextpdf.layout.element.IBlockElement;
 import com.itextpdf.layout.element.IElement;
 import com.itextpdf.layout.properties.AreaBreakType;
-import org.commonmark.node.AbstractVisitor;
-import org.commonmark.node.Heading;
-import org.commonmark.node.Node;
-import org.commonmark.node.Text;
-import org.commonmark.parser.Parser;
-import org.commonmark.renderer.html.HtmlRenderer;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
+import jdk.jfr.Name;
 
-import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.util.List;
-import java.util.stream.Stream;
 
-public class GeneratePDF {
+@ApplicationScoped
+@Named("generatePDF")
+public class GeneratePDF implements GenerateEbook {
 
-    public void generate(List<String> htmls, Path arquivoDeSaida) {
-        try (var writer = new PdfWriter(Files.newOutputStream(arquivoDeSaida));
+    @Override
+    public void generate(Ebook ebook) {
+        try (var writer = new PdfWriter(Files.newOutputStream(ebook.getFilePath()));
              var pdf = new PdfDocument(writer);
              var pdfDocument = new Document(pdf)) {
 
-            //TODO: definir título e autor para o livro
-            pdf.getDocumentInfo().setTitle("Livro");
-            pdf.getDocumentInfo().setAuthor("Autor");
-            htmls.forEach(html -> {
-                List<IElement> convertToElements = HtmlConverter.convertToElements(html);
+            pdf.getDocumentInfo().setTitle(ebook.getTitle());
+            pdf.getDocumentInfo().setAuthor(ebook.getAuthor());
+            List<Chapter> chapters = ebook.getChapters();
+            chapters.forEach(chapter -> {
+                List<IElement> convertToElements = HtmlConverter.convertToElements(chapter.getHtmlContent());
 
                 if (pdf.getNumberOfPages() == 0) {
                     pdf.addNewPage();
@@ -47,8 +42,7 @@ public class GeneratePDF {
                     rootOutline = pdf.getOutlines(false);
                 }
 
-                // TODO: usar título do capítulo
-                PdfOutline chapterOutline = rootOutline.addOutline("Capítulo");
+                PdfOutline chapterOutline = rootOutline.addOutline(chapter.getTitle());
                 chapterOutline.addDestination(PdfExplicitDestination.createFit(pdf.getLastPage()));
 
                 for (IElement element : convertToElements) {
@@ -61,7 +55,7 @@ public class GeneratePDF {
 
         } catch (
                 Exception ex) {
-            throw new IllegalStateException("Erro ao gerar PDF: " + arquivoDeSaida.toAbsolutePath(), ex);
+            throw new IllegalStateException("Erro ao gerar PDF: " + ebook.getFilePath().toAbsolutePath(), ex);
         }
     }
 }
