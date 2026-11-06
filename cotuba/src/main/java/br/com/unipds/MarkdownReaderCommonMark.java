@@ -1,7 +1,6 @@
 package br.com.unipds;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import org.commonmark.node.AbstractVisitor;
 import org.commonmark.node.Heading;
 import org.commonmark.node.Node;
@@ -10,7 +9,6 @@ import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.List;
 
 @ApplicationScoped

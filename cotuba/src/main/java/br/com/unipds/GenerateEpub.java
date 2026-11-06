@@ -14,7 +14,7 @@ import java.nio.file.Files;
 import java.util.List;
 
 @ApplicationScoped
-@Named("generateEpub")
+@EbookFormatQualifier(EbookExtension.EPUB)
 public class GenerateEpub implements GenerateEbook {
 
     @Override

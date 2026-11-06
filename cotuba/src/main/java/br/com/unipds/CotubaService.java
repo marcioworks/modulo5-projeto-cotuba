@@ -1,8 +1,9 @@
 package br.com.unipds;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
-import jakarta.inject.Named;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,18 +14,16 @@ public class CotubaService {
     private final MarkdownReader markdownReader;
     private final PropertiesReader propertiesReader;
     private final MarkDownRepository markDownRepository;
-    private final GenerateEbook generatePdf;
-    private final GenerateEbook generateEpub;
+    private final Instance<GenerateEbook> generateEbookInstance;
 
 
     @Inject
     public CotubaService(MarkdownReader markdownReader, PropertiesReader propertiesReader, MarkDownRepository markDownRepository,
-                         @Named("generatePDF") GenerateEbook generatePdf, @Named("generateEpub")GenerateEbook generateEpub) {
+                        @Any Instance<GenerateEbook> generateEbook) {
         this.markdownReader = markdownReader;
         this.propertiesReader = propertiesReader;
         this.markDownRepository = markDownRepository;
-        this.generatePdf = generatePdf;
-        this.generateEpub = generateEpub;
+        this.generateEbookInstance = generateEbook;
     }
 
     public void executar(ParametrosCotuba parametros) throws IOException {
@@ -39,14 +38,7 @@ public class CotubaService {
 
         propertiesReader.readProperties(parametros.getDiretorioDosMD(), ebook);
 
-        GenerateEbook generateEbook ;
-        if (EbookExtension.PDF.equals(parametros.getFormato())) {
-            generateEbook = generatePdf;
-        } else if (EbookExtension.EPUB.equals(parametros.getFormato())) {
-            generateEbook = generateEpub;
-        } else {
-            throw new IllegalArgumentException("Formato do ebook inválido: " + parametros.getFormato());
-        }
+        GenerateEbook generateEbook = generateEbookInstance.select(EbookFormatFiler.of(ebook.getFormat())).get();
         generateEbook.generate(ebook);
     }
 }

@@ -11,14 +11,12 @@ import com.itextpdf.layout.element.IBlockElement;
 import com.itextpdf.layout.element.IElement;
 import com.itextpdf.layout.properties.AreaBreakType;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Named;
-import jdk.jfr.Name;
 
 import java.nio.file.Files;
 import java.util.List;
 
 @ApplicationScoped
-@Named("generatePDF")
+@EbookFormatQualifier(EbookExtension.PDF)
 public class GeneratePDF implements GenerateEbook {
 
     @Override
