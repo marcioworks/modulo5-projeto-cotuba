@@ -12,7 +12,7 @@ import java.util.Properties;
 public class EbookPropertiesReader implements PropertiesReader {
 
     @Override
-    public void readProperties(Path directoryPath, Ebook ebook) {
+    public EbookProperties readProperties(Path directoryPath) {
         Path propertiesFile = directoryPath.resolve("ebook.properties");
         if (!Files.exists(propertiesFile)) {
             throw new IllegalArgumentException("Properties file not found: " + propertiesFile.toString());
@@ -24,7 +24,7 @@ public class EbookPropertiesReader implements PropertiesReader {
         } catch (IOException e) {
             throw new RuntimeException("error read properties", e);
         }
-        ebook.setTitle(properties.getProperty("cotuba.ebook.titulo"));
-        ebook.setAuthor(properties.getProperty("cotuba.ebook.autor"));
+
+        return new EbookProperties(properties.getProperty("cotuba.ebook.titulo"), properties.getProperty("cotuba.ebook.autor"));
     }
 }

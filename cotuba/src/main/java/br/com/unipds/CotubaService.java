@@ -28,17 +28,20 @@ public class CotubaService {
 
     public void executar(ParametrosCotuba parametros) throws IOException {
 
-        List<Chapter> chapterList = markDownRepository.getFiles(parametros.getDiretorioDosMD());
-        markdownReader.readFiles(chapterList);
+        List<Markdown> markdowns = markDownRepository.getFiles(parametros.diretorioDosMD());
+        List<Chapter> chapters = markdownReader.readFiles(markdowns);
 
-        Ebook ebook = new Ebook();
-        ebook.setFilePath(parametros.getArquivoDeSaida());
-        ebook.setChapters(chapterList);
-        ebook.setFormat(parametros.getFormato());
+        EbookBuilder ebookBuilder = EbookBuilder.builder();
+        EbookProperties ebookProperties = propertiesReader.readProperties(parametros.diretorioDosMD());
+        ebookBuilder.title(ebookProperties.title());
+        ebookBuilder.author(ebookProperties.author());
+        ebookBuilder.filePath(parametros.arquivoDeSaida());
+        ebookBuilder.chapters(chapters);
+        ebookBuilder.format(parametros.formato());
 
-        propertiesReader.readProperties(parametros.getDiretorioDosMD(), ebook);
 
-        GenerateEbook generateEbook = generateEbookInstance.select(EbookFormatFiler.of(ebook.getFormat())).get();
+        GenerateEbook generateEbook = generateEbookInstance.select(EbookFormatFiler.of(ebookBuilder.format())).get();
+        var ebook = ebookBuilder.build();
         generateEbook.generate(ebook);
     }
 }

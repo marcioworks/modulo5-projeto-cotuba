@@ -42,49 +42,53 @@ public class ReadCliOptions {
         }
 
         try {
-            ParametrosCotuba parametrosCotuba = new ParametrosCotuba();
+
             boolean modoVerboso = true ;
+            Path arquivoMD ;
+            EbookExtension format ;
+            Path arquivoSaida ;
 
             String nomeDoDiretorioDosMD = cmd.getOptionValue("dir");
 
             if (nomeDoDiretorioDosMD != null) {
-                parametrosCotuba.setDiretorioDosMD(Paths.get(nomeDoDiretorioDosMD));
-                if (!Files.isDirectory(parametrosCotuba.getDiretorioDosMD())) {
+                arquivoMD = Paths.get(nomeDoDiretorioDosMD);
+                if (!Files.isDirectory(arquivoMD)) {
                     throw new IllegalArgumentException(nomeDoDiretorioDosMD + " não é um diretório.");
                 }
             } else {
                 Path diretorioAtual = Paths.get("");
-                parametrosCotuba.setDiretorioDosMD(diretorioAtual);
+                arquivoMD = diretorioAtual;
             }
 
             String nomeDoFormatoDoEbook = cmd.getOptionValue("format");
 
             if (nomeDoFormatoDoEbook != null) {
                 try {
-                    parametrosCotuba.setFormato( EbookExtension.valueOf(nomeDoFormatoDoEbook.toUpperCase()));
+                    format =  EbookExtension.valueOf(nomeDoFormatoDoEbook.toUpperCase());
                 }catch (IllegalArgumentException ex){
                     throw new IllegalArgumentException("Formato do ebook inválido: " + nomeDoFormatoDoEbook,ex);
                 }
             } else {
-                parametrosCotuba.setFormato (EbookExtension.PDF);
+                format = EbookExtension.PDF;
             }
 
             String nomeDoArquivoDeSaidaDoEbook = cmd.getOptionValue("output");
             if (nomeDoArquivoDeSaidaDoEbook != null) {
-                parametrosCotuba.setArquivoDeSaida(Paths.get(nomeDoArquivoDeSaidaDoEbook));
+                arquivoSaida = Paths.get(nomeDoArquivoDeSaidaDoEbook);
             } else {
-                parametrosCotuba.setArquivoDeSaida(Paths.get("book." + parametrosCotuba.getFormato().name().toLowerCase()));
+                arquivoSaida = Paths.get("book." + format.name().toLowerCase());
             }
-            if (Files.isDirectory(parametrosCotuba.getArquivoDeSaida())) {
+            if (Files.isDirectory(arquivoSaida)) {
                 // deleta arquivos do diretório recursivamente
-                Files.walk(parametrosCotuba.getArquivoDeSaida()).sorted(Comparator.reverseOrder())
+                Files.walk(arquivoSaida).sorted(Comparator.reverseOrder())
                         .map(Path::toFile).forEach(File::delete);
             } else {
-                Files.deleteIfExists(parametrosCotuba.getArquivoDeSaida());
+                Files.deleteIfExists(arquivoSaida);
             }
 
             modoVerboso = cmd.hasOption("verbose");
-            return parametrosCotuba;
+
+            return new ParametrosCotuba(arquivoMD,format,arquivoSaida,modoVerboso);
         }catch (Exception exception){
             throw new IllegalArgumentException(exception);
         }

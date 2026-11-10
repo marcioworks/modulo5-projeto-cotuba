@@ -14,9 +14,9 @@ import java.util.stream.Stream;
 public class MarkDownRepositoryDirectory implements MarkDownRepository {
 
     @Override
-    public List<Chapter> getFiles(Path diretorioDosMD) {
+    public List<Markdown> getFiles(Path diretorioDosMD) {
+        PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:**/*.md");
         try (Stream<Path> streamMDs = Files.list(diretorioDosMD)) {
-            PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:**/*.md");
             List<Path> arquivosMD = streamMDs
                     .filter(matcher::matches)
                     .sorted()
@@ -27,19 +27,16 @@ public class MarkDownRepositoryDirectory implements MarkDownRepository {
             }
             return arquivosMD.stream().map(arquivoMD -> {
                 try {
-                    Chapter chapter = new Chapter();
                     String markdown = Files.readString(arquivoMD);
 
-                    chapter.setMarkdownContent(markdown);
-                    chapter.setMarkdownFilePath(arquivoMD);
-                    return chapter;
+                    return new Markdown(markdown,arquivoMD);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }).toList();
 
-            } catch(IOException ex){
-                throw new IllegalStateException("Erro tentando encontrar arquivos .md em " + diretorioDosMD.toAbsolutePath(), ex);
-            }
+        } catch (IOException ex) {
+            throw new IllegalStateException("Erro tentando encontrar arquivos .md em " + diretorioDosMD.toAbsolutePath(), ex);
         }
     }
+}

@@ -4,6 +4,6 @@ import java.nio.file.Path;
 import java.util.List;
 
 public interface MarkDownRepository {
-    List<Chapter> getFiles(Path diretorioDosMD);
+    List<Markdown> getFiles(Path diretorioDosMD);
 
 }

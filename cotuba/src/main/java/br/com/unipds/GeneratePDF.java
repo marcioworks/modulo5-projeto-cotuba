@@ -21,15 +21,15 @@ public class GeneratePDF implements GenerateEbook {
 
     @Override
     public void generate(Ebook ebook) {
-        try (var writer = new PdfWriter(Files.newOutputStream(ebook.getFilePath()));
+        try (var writer = new PdfWriter(Files.newOutputStream(ebook.filePath()));
              var pdf = new PdfDocument(writer);
              var pdfDocument = new Document(pdf)) {
 
-            pdf.getDocumentInfo().setTitle(ebook.getTitle());
-            pdf.getDocumentInfo().setAuthor(ebook.getAuthor());
-            List<Chapter> chapters = ebook.getChapters();
+            pdf.getDocumentInfo().setTitle(ebook.title());
+            pdf.getDocumentInfo().setAuthor(ebook.author());
+            List<Chapter> chapters = ebook.chapters();
             chapters.forEach(chapter -> {
-                List<IElement> convertToElements = HtmlConverter.convertToElements(chapter.getHtmlContent());
+                List<IElement> convertToElements = HtmlConverter.convertToElements(chapter.htmlContent());
 
                 if (pdf.getNumberOfPages() == 0) {
                     pdf.addNewPage();
@@ -40,7 +40,7 @@ public class GeneratePDF implements GenerateEbook {
                     rootOutline = pdf.getOutlines(false);
                 }
 
-                PdfOutline chapterOutline = rootOutline.addOutline(chapter.getTitle());
+                PdfOutline chapterOutline = rootOutline.addOutline(chapter.title());
                 chapterOutline.addDestination(PdfExplicitDestination.createFit(pdf.getLastPage()));
 
                 for (IElement element : convertToElements) {
@@ -53,7 +53,7 @@ public class GeneratePDF implements GenerateEbook {
 
         } catch (
                 Exception ex) {
-            throw new IllegalStateException("Erro ao gerar PDF: " + ebook.getFilePath().toAbsolutePath(), ex);
+            throw new IllegalStateException("Erro ao gerar PDF: " + ebook.filePath().toAbsolutePath(), ex);
         }
     }
 }

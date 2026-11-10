@@ -23,9 +23,9 @@ public class Main {
 
             CotubaService cotubaService = container.select(CotubaService.class).get();
             cotubaService.executar(parametrosCotuba);
-            modoVerboso = parametrosCotuba.isModoVerboso();
+            modoVerboso = parametrosCotuba.modoVerboso();
 
-            System.out.println("Arquivo gerado com sucesso: " + parametrosCotuba.getArquivoDeSaida());
+            System.out.println("Arquivo gerado com sucesso: " + parametrosCotuba.arquivoDeSaida());
             return 0;
 
         } catch (Exception ex) {

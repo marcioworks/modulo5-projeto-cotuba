@@ -21,15 +21,15 @@ public class GenerateEpub implements GenerateEbook {
     public void generate(Ebook ebook) {
         try {
             var epub = new Book();
-            epub.getMetadata().addTitle(ebook.getTitle());
-            epub.getMetadata().addAuthor(new Author(ebook.getAuthor()));
+            epub.getMetadata().addTitle(ebook.title());
+            epub.getMetadata().addAuthor(new Author(ebook.author()));
 
             boolean[] ehPrimeiroCapitulo = {true};
-            List<Chapter> chapters = ebook.getChapters();
+            List<Chapter> chapters = ebook.chapters();
             chapters.forEach(chapter -> {
 
-                String title = chapter.getTitle();
-                String htmlContent = chapter.getHtmlContent();
+                String title = chapter.title();
+                String htmlContent = chapter.htmlContent();
                 // TODO: usar título do capítulo
                 String epubHtml = """
                           <html xmlns="http://www.w3.org/1999/xhtml">
@@ -53,14 +53,14 @@ public class GenerateEpub implements GenerateEbook {
             var epubWriter = new EpubWriter();
 
             try {
-                epubWriter.write(epub, Files.newOutputStream(ebook.getFilePath()));
+                epubWriter.write(epub, Files.newOutputStream(ebook.filePath()));
             } catch (IOException ex) {
-                throw new IllegalStateException("Erro ao criar arquivo EPUB: " + ebook.getFilePath().toAbsolutePath(), ex);
+                throw new IllegalStateException("Erro ao criar arquivo EPUB: " + ebook.filePath().toAbsolutePath(), ex);
             }
 
         } catch (
                 Exception ex) {
-            throw new IllegalStateException("Erro ao gerar EPUB: " + ebook.getFilePath().toAbsolutePath(), ex);
+            throw new IllegalStateException("Erro ao gerar EPUB: " + ebook.filePath().toAbsolutePath(), ex);
         }
     }
 }

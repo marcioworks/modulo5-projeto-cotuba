@@ -15,13 +15,13 @@ import java.util.stream.Collectors;
 public class GenerateHtml implements GenerateEbook {
     @Override
     public void generate(Ebook ebook) {
-        Path filePath = ebook.getFilePath();
+        Path filePath = ebook.filePath();
 
         try {
             Path directory = Files.createDirectories(filePath);
             Map<Chapter, Path> fileChapterHtm = new LinkedHashMap<>();
             int i = 1;
-            for (Chapter chapter : ebook.getChapters()) {
+            for (Chapter chapter : ebook.chapters()) {
                 String fileHtmlName = getFileNameHtml(i, chapter);
                 Path htmlFile = directory.resolve(fileHtmlName);
                 writeFileHtml(htmlFile, chapter);
@@ -35,7 +35,7 @@ public class GenerateHtml implements GenerateEbook {
     }
 
     private void writeSummary(Ebook ebook, Path directory, Map<Chapter, Path> fileChapterHtm) throws IOException {
-        String itens = ebook.getChapters().stream().map(chapter -> {
+        String itens = ebook.chapters().stream().map(chapter -> {
             String fileName = fileChapterHtm.get(chapter)
                     .getFileName()
                     .toString()
@@ -43,7 +43,7 @@ public class GenerateHtml implements GenerateEbook {
 
             return """
                     <li><a href="%s">%s</a></li>
-                    """.formatted(fileName, chapter.getTitle());
+                    """.formatted(fileName, chapter.title());
         }).collect(Collectors.joining());
 
         String html = """
@@ -63,7 +63,7 @@ public class GenerateHtml implements GenerateEbook {
                         </ul >
                     </body >
                 </html >
-                """.formatted(ebook.getTitle(), ebook.getTitle(), ebook.getAuthor(), itens);
+                """.formatted(ebook.title(), ebook.title(), ebook.author(), itens);
 
         Path index = directory.resolve("index.html");
         Files.writeString(index, html, StandardCharsets.UTF_8);
@@ -82,13 +82,13 @@ public class GenerateHtml implements GenerateEbook {
                          %s
                     </body >
                 </html >
-                """.formatted(chapter.getTitle(), chapter.getHtmlContent());
+                """.formatted(chapter.title(), chapter.htmlContent());
 
         Files.writeString(htmlFile, html, StandardCharsets.UTF_8);
     }
 
     private String getFileNameHtml(int i, Chapter chapter) {
-        String cleanTitle = chapter.getTitle().replaceAll("\\W", "");
+        String cleanTitle = chapter.title().replaceAll("\\W", "");
         return "%d-%s.html".formatted(i, cleanTitle);
     }
 }
